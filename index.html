@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes Maker</title>
+<style>
+  :root {
+    --bg: #F5F6F7;
+    --panel: #FFFFFF;
+    --border: #DADDE1;
+    --border-strong: #B9BEC5;
+    --text-primary: #1B1F23;
+    --text-secondary: #5B626B;
+    --text-muted: #8A909A;
+    --accent: #1D5FA6;
+    --accent-hover: #164A82;
+    --accent-tint: #E8F0FA;
+    --success: #1E7A4C;
+    --success-tint: #E7F5EC;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --radius: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181B;
+      --panel: #1F2226;
+      --border: #33373D;
+      --border-strong: #454A52;
+      --text-primary: #EDEEF0;
+      --text-secondary: #A7ACB3;
+      --text-muted: #767C85;
+      --accent: #5B9BE0;
+      --accent-hover: #79AEEA;
+      --accent-tint: #1C2B3D;
+      --success: #4FBE84;
+      --success-tint: #17281E;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 32px 20px 80px;
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .agent-name-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    flex: none;
+  }
+
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    background: var(--accent-tint);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-remove {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-size: 10px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .avatar-wrap.has-photo .avatar-remove {
+    display: flex;
+  }
+
+  .agent-name-field label {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .agent-name-field input {
+    width: 160px;
+    padding: 6px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+
+  .agent-name-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  h1 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: 13.5px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .panel h2 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 10px 0 5px;
+  }
+
+  .section-label:first-of-type {
+    margin-top: 0;
+  }
+
+  .field {
+    margin-bottom: 6px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+  }
+
+  label .req {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 14px;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  input.invalid {
+    border-color: #C4432B;
+  }
+
+  input[readonly] {
+    background: var(--bg);
+    color: var(--text-secondary);
+    cursor: default;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .error-msg {
+    font-size: 12px;
+    color: #C4432B;
+    margin-top: 4px;
+    display: none;
+  }
+
+  .error-msg.show {
+    display: block;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  button {
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    padding: 9px 16px;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: var(--panel);
+    color: var(--text-primary);
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  button:hover {
+    background: var(--bg);
+  }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    flex: 1;
+  }
+
+  button.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+
+  button.primary.copied {
+    background: var(--success);
+    border-color: var(--success);
+  }
+
+  button:active {
+    transform: scale(0.99);
+  }
+
+  .preview {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    min-height: 320px;
+    color: var(--text-primary);
+  }
+
+  .preview .placeholder {
+    color: var(--text-muted);
+    font-family: var(--sans);
+    font-style: normal;
+  }
+
+  .status {
+    font-size: 12.5px;
+    color: var(--success);
+    margin-top: 8px;
+    height: 16px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .status.show {
+    opacity: 1;
+  }
+
+  .tabs {
+    margin-bottom: 24px;
+  }
+
+  .main-tab-select {
+    max-width: 260px;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 34px 10px 12px;
+  }
+
+  .view {
+    display: none;
+  }
+
+  .view.active {
+    display: block;
+  }
+
+  .spiel-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .spiel-cat-btn {
+    border-radius: 999px;
+    padding: 8px 16px;
+  }
+
+  .spiel-cat-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .spiel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .spiel-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .spiel-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+  }
+
+  .spiel-item button {
+    font-size: 12.5px;
+    padding: 6px 12px;
+  }
+
+  .spiel-item .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .spiel-item button.copied {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+  }
+
+  .spiel-item button.saved {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+  }
+
+  .spiel-edit-area {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--panel);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 70px;
+    margin-bottom: 10px;
+  }
+
+  .spiel-edit-area:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .spiel-list-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .spiel-item button.danger:hover {
+    background: #C4432B;
+    border-color: #C4432B;
+    color: #fff;
+  }
+
+  .chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 560px;
+    max-height: 70vh;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-msg {
+    display: flex;
+    gap: 10px;
+    max-width: 80%;
+  }
+
+  .chat-msg.me {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .chat-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex: none;
+    object-fit: cover;
+    background: var(--accent-tint);
+  }
+
+  .chat-bubble-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .chat-msg.me .chat-bubble-col {
+    align-items: flex-end;
+  }
+
+  .chat-name {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding: 0 4px;
+  }
+
+  .chat-bubble {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .chat-msg.me .chat-bubble {
+    background: var(--accent-tint);
+    border-color: var(--accent-tint);
+  }
+
+  .chat-time {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    padding: 0 4px;
+  }
+
+  .chat-compose {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .chat-compose input[type="text"] {
+    flex: 1;
+  }
+
+  .chat-you-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+
+  .chat-you-bar img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .chat-you-bar strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .chat-empty, .chat-status {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .ts-note {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+
+  .ts-what-happens {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .ts-what-happens-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .ts-what-happens ul, .ts-steps ol {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .ts-what-happens .ts-note {
+    margin: 10px 0 0;
+  }
+
+  .ts-steps {
+    margin-top: 20px;
+  }
+
+  .spiel-empty {
+    color: var(--text-muted);
+    font-size: 13.5px;
+    padding: 8px 0;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2000;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal-box {
+    background: var(--panel);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+
+  .modal-close:hover {
+    color: var(--text-primary);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="pageTitle">Notes Maker</h1>
+      <p id="pageSubtitle">Fill in the fields, then copy a ServiceNow-ready ticket description to your clipboard.</p>
+    </div>
+    <div class="agent-name-field">
+      <div class="avatar-wrap" id="avatarWrap" title="Click to add a photo">
+        <div class="avatar-circle" id="avatarCircle">+</div>
+        <button type="button" class="avatar-remove" id="avatarRemove" title="Remove photo">&times;</button>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none">
+      </div>
+      <div>
+        <label for="agentNameInput">Your name</label>
+        <input type="text" id="agentNameInput">
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <select id="mainTabSelect" class="main-tab-select">
+      <option value="notes">Notes Maker</option>
+      <option value="spiel">Call Spiel</option>
+      <option value="email">Email Template</option>
+      <option value="teams">MS Teams</option>
+      <option value="tstool">Toolkit</option>
+    </select>
+  </div>
+
+  <div class="view active" id="viewNotes">
+  <div class="grid">
+    <div class="panel">
+      <h2>Ticket details</h2>
+      <form id="record-form">
+
+        <div class="section-label">User info</div>
+        <div class="field">
+          <label for="ticketNumber">Ticket number</label>
+          <input type="text" id="ticketNumber">
+        </div>
+        <div class="field">
+          <label for="verification">Verification</label>
+          <input type="text" id="verification" list="verificationOptions" placeholder="Select or type...">
+          <datalist id="verificationOptions">
+            <option value="Verified via DUO">
+            <option value="Verified by Email">
+            <option value="Verified by Phone Number">
+            <option value="Verified by UserID">
+            <option value="Verified by First and Last Name">
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="clientName">Client name</label>
+          <input type="text" id="clientName">
+        </div>
+        <div class="field">
+          <label for="loginId">Login ID <span class="req">required</span></label>
+          <input type="text" id="loginId">
+          <div class="error-msg" id="err-loginId">Enter a login ID.</div>
+        </div>
+        <div class="field">
+          <label for="currentLocation">Current location</label>
+          <input type="text" id="currentLocation">
+        </div>
+        <div class="field">
+          <label for="phoneNumber">Phone number</label>
+          <input type="text" id="phoneNumber">
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="text" id="email">
+        </div>
+
+        <div class="section-label">Device</div>
+        <div class="field">
+          <label for="deviceName">Device name</label>
+          <input type="text" id="deviceName">
+        </div>
+
+        <div class="section-label">Issue</div>
+        <div class="field">
+          <label for="configItem">Configuration item</label>
+          <input type="text" id="configItem">
+        </div>
+        <div class="field">
+          <label for="issue">Issue</label>
+          <input type="text" id="issue">
+        </div>
+        <div class="field">
+          <label for="description">Comprehensive description of the issue <span class="req">auto-filled</span></label>
+          <input type="text" id="description" readonly>
+        </div>
+        <div class="field">
+          <label for="troubleshooting">Troubleshooting steps/additional information</label>
+          <textarea id="troubleshooting"></textarea>
+        </div>
+      </form>
+      <div class="row">
+        <button id="clearBtn" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Preview</h2>
+      <div class="preview" id="preview"></div>
+      <div class="row" style="margin-top:16px;">
+        <button class="primary" id="copyBtn" type="button">Copy to clipboard</button>
+      </div>
+      <div class="status" id="status">Copied — paste into ServiceNow</div>
+    </div>
+  </div>
+  </div>
+
+  <div class="view" id="viewSpiel">
+    <div class="spiel-cats" id="spielCats"></div>
+    <div class="spiel-list-header">
+      <button type="button" id="addSpielBtn">+ Add new spiel</button>
+    </div>
+    <div class="spiel-list" id="spielList"></div>
+  </div>
+
+  <div class="view" id="viewEmail">
+    <div class="spiel-cats" id="emailCats"></div>
+    <div class="spiel-list-header">
+      <button type="button" id="addEmailBtn">+ Add new template</button>
+    </div>
+    <div class="spiel-list" id="emailList"></div>
+  </div>
+
+  <div class="view" id="viewTeams">
+    <div class="panel">
+      <h2>Open a Teams chat</h2>
+      <p class="ts-note">Client name, ticket number, and email address stay in sync with the Notes Maker tab — edit them there.</p>
+      <div class="field">
+        <label for="teamsClientName">Client name <span class="req">from Notes Maker</span></label>
+        <input type="text" id="teamsClientName" readonly>
+      </div>
+      <div class="field">
+        <label for="teamsTicketNumber">Ticket number <span class="req">from Notes Maker</span></label>
+        <input type="text" id="teamsTicketNumber" readonly>
+      </div>
+      <div class="field">
+        <label for="teamsEmail">Email address <span class="req">from Notes Maker</span></label>
+        <input type="text" id="teamsEmail" readonly>
+        <div class="error-msg" id="err-teamsEmail">Add an email address in the Notes Maker tab first.</div>
+      </div>
+      <div class="field">
+        <label for="teamsMessage">Message</label>
+        <textarea id="teamsMessage" placeholder="Type your message..."></textarea>
+      </div>
+      <p class="ts-note">Teams only lets a link pre-fill the message box — it can't send it for you. Once Teams opens, your message will already be typed in; press Enter or Send inside Teams to actually send it.</p>
+      <div class="row">
+        <button class="primary" id="teamsOpenBtn" type="button">Open Teams chat</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="viewTsTool">
+    <div class="field" style="max-width:360px;">
+      <label for="toolkitSelect">Choose a tool</label>
+      <select id="toolkitSelect"></select>
+    </div>
+    <div class="panel" id="toolkitDetail"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="scriptModalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="scriptModalTitle">Script</h2>
+      <button type="button" id="scriptModalClose" class="modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="preview" id="scriptModalPreview" style="min-height:auto;"></div>
+    <div class="row" style="margin-top:16px;">
+      <button class="primary" id="scriptModalCopyBtn" type="button">Copy script</button>
+    </div>
+    <div class="status" id="scriptModalStatus">Copied — paste it in and press Enter</div>
+  </div>
+</div>
+
+<script>
+  // ---- Clipboard helper: modern API first, legacy fallback (works on file:// and restricted contexts) ----
+  function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  async function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {}
+    }
+    return legacyCopy(text);
+  }
+
+  const fields = [
+    'ticketNumber', 'verification', 'clientName', 'loginId', 'currentLocation', 'phoneNumber', 'email',
+    'deviceName',
+    'configItem', 'issue', 'description', 'troubleshooting'
+  ];
+  const autoDescFields = ['configItem', 'issue', 'deviceName'];
+  const inputs = {};
+  fields.forEach(id => inputs[id] = document.getElementById(id));
+
+  const preview = document.getElementById('preview');
+  const copyBtn = document.getElementById('copyBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const statusEl = document.getElementById('status');
+  const errLoginId = document.getElementById('err-loginId');
+
+  const STORAGE_KEY = 'record-formatter-draft-v3';
+  const SEP = '****************************';
+
+  function formatTroubleshooting(raw) {
+    const text = (raw || '').trim();
+    if (!text) return '';
+    let parts = text.split(/\s+-\s+/).map(s => s.trim()).filter(Boolean);
+    parts = parts.map(p => p.replace(/^-+\s*/, ''));
+    if (parts.length <= 1) return text;
+    return parts.map(p => '- ' + p).join('\n');
+  }
+
+  // "Label:" when empty, "Label: value" when filled (no trailing space on empty lines)
+  function kv(label, value) {
+    return value ? label + ': ' + value : label + ':';
+  }
+
+  function buildPlainText(v) {
+    const lines = [];
+    lines.push(kv('Verification', v.verification));
+    lines.push('');
+    lines.push(kv('Client Name', v.clientName));
+    lines.push(kv('Login ID', v.loginId));
+    lines.push(kv('Current Location', v.currentLocation));
+    lines.push(kv('Phone Number', v.phoneNumber));
+    lines.push('Alt Number: NA');
+    lines.push(kv('Email address', v.email));
+    lines.push('');
+    lines.push(SEP);
+    lines.push('');
+    lines.push(kv('Device Name', v.deviceName));
+    lines.push('Operating System and Version: NA');
+    lines.push('Drive Path/Folder Name: NA');
+    lines.push('Printer Name: NA');
+    lines.push('');
+    lines.push(SEP);
+    lines.push('Comprehensive Description of the Issue:');
+    if (v.description) lines.push(v.description);
+    lines.push('');
+    lines.push('');
+    lines.push('Troubleshooting steps/Additional Information:');
+    const ts = formatTroubleshooting(v.troubleshooting);
+    if (ts) lines.push(ts);
+    return lines.join('\n');
+  }
+
+  function esc(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // Rich-text version: same lines as the plain text, joined with <br> so blank lines are preserved
+  function buildHtml(v) {
+    return '<p>' + buildPlainText(v).split('\n').map(esc).join('<br>') + '</p>';
+  }
+
+  function currentValues() {
+    const v = {};
+    fields.forEach(id => v[id] = inputs[id].value.trim());
+    return v;
+  }
+
+  function renderPreview() {
+    const v = currentValues();
+    const hasAny = fields.some(id => v[id]);
+    if (!hasAny) {
+      preview.innerHTML = '<span class="placeholder">Start filling in the form to see the formatted output here.</span>';
+      return;
+    }
+    preview.textContent = buildPlainText(v);
+  }
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentValues()));
+    } catch (e) {}
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const v = JSON.parse(raw);
+      fields.forEach(id => {
+        if (v[id]) inputs[id].value = v[id];
+      });
+    } catch (e) {}
+  }
+
+  function updateDescription() {
+    const parts = [
+      inputs.configItem.value.trim(),
+      inputs.issue.value.trim(),
+      inputs.deviceName.value.trim()
+    ];
+    inputs.description.value = parts.join(' | ');
+  }
+
+  fields.forEach(id => {
+    inputs[id].addEventListener('input', () => {
+      if (autoDescFields.includes(id)) {
+        updateDescription();
+      }
+      renderPreview();
+      saveDraft();
+      if (id === 'loginId' && inputs.loginId.value.trim()) {
+        inputs.loginId.classList.remove('invalid');
+        errLoginId.classList.remove('show');
+      }
+    });
+  });
+
+  async function copyToClipboard() {
+    const v = currentValues();
+    if (!v.loginId) {
+      inputs.loginId.classList.add('invalid');
+      errLoginId.classList.add('show');
+      inputs.loginId.focus();
+      return;
+    }
+
+    const plain = buildPlainText(v);
+    const html = buildHtml(v);
+
+    let copied = false;
+    try {
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([plain], { type: 'text/plain' }),
+            'text/html': new Blob([html], { type: 'text/html' })
+          })
+        ]);
+        copied = true;
+      }
+    } catch (e) {
+      copied = false;
+    }
+    if (!copied) {
+      copied = await copyText(plain);
+    }
+
+    if (copied) {
+      copyBtn.textContent = 'Copied';
+      copyBtn.classList.add('copied');
+      statusEl.classList.add('show');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy to clipboard';
+        copyBtn.classList.remove('copied');
+        statusEl.classList.remove('show');
+      }, 1800);
+    } else {
+      alert('Could not access the clipboard. Select the preview text and copy it manually.');
+    }
+  }
+
+  copyBtn.addEventListener('click', copyToClipboard);
+
+
+  clearBtn.addEventListener('click', () => {
+    fields.forEach(id => inputs[id].value = '');
+    inputs.loginId.classList.remove('invalid');
+    errLoginId.classList.remove('show');
+    renderPreview();
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    inputs.loginId.focus();
+  });
+
+  loadDraft();
+  updateDescription();
+  renderPreview();
+
+  // ---- Agent name (fills in [Agent Name] across spiels/templates) ----
+  const AGENT_NAME_KEY = 'agent-name';
+  const agentNameInput = document.getElementById('agentNameInput');
+
+  function loadAgentName() {
+    try {
+      return localStorage.getItem(AGENT_NAME_KEY) || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function saveAgentName(name) {
+    try {
+      localStorage.setItem(AGENT_NAME_KEY, name);
+    } catch (e) {}
+  }
+
+  function applyAgentName(text) {
+    const name = agentNameInput.value.trim();
+    if (!name) return text;
+    return text.split('[Agent Name]').join(name);
+  }
+
+  agentNameInput.value = loadAgentName();
+  agentNameInput.addEventListener('input', () => {
+    saveAgentName(agentNameInput.value.trim());
+    if (spielTab) spielTab.refresh();
+    if (emailTab) emailTab.refresh();
+  });
+
+  // ---- Agent avatar ----
+  const AVATAR_KEY = 'agent-avatar';
+  const avatarWrap = document.getElementById('avatarWrap');
+  const avatarCircle = document.getElementById('avatarCircle');
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarRemove = document.getElementById('avatarRemove');
+
+  function renderAvatar(dataUrl) {
+    if (dataUrl) {
+      avatarCircle.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      avatarCircle.appendChild(img);
+      avatarWrap.classList.add('has-photo');
+    } else {
+      avatarCircle.innerHTML = '+';
+      avatarWrap.classList.remove('has-photo');
+    }
+  }
+
+  function loadAvatar() {
+    try {
+      return localStorage.getItem(AVATAR_KEY) || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function saveAvatar(dataUrl) {
+    try {
+      if (dataUrl) {
+        localStorage.setItem(AVATAR_KEY, dataUrl);
+      } else {
+        localStorage.removeItem(AVATAR_KEY);
+      }
+    } catch (e) {}
+  }
+
+  avatarCircle.addEventListener('click', () => avatarInput.click());
+
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const size = 128;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.max(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        saveAvatar(dataUrl);
+        renderAvatar(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+    avatarInput.value = '';
+  });
+
+  avatarRemove.addEventListener('click', (e) => {
+    e.stopPropagation();
+    saveAvatar('');
+    renderAvatar('');
+  });
+
+  renderAvatar(loadAvatar());
+
+  // ---- Tabs ----
+  const mainTabSelect = document.getElementById('mainTabSelect');
+  const viewNotes = document.getElementById('viewNotes');
+  const viewSpiel = document.getElementById('viewSpiel');
+  const viewEmail = document.getElementById('viewEmail');
+  const viewTeams = document.getElementById('viewTeams');
+  const viewTsTool = document.getElementById('viewTsTool');
+  const pageTitle = document.getElementById('pageTitle');
+  const pageSubtitle = document.getElementById('pageSubtitle');
+
+  const tabConfigs = {
+    notes: {
+      view: viewNotes,
+      title: 'Notes Maker',
+      subtitle: 'Fill in the fields, then copy a ServiceNow-ready ticket description to your clipboard.'
+    },
+    spiel: {
+      view: viewSpiel,
+      title: 'Call Spiel',
+      subtitle: 'Pick a category, then use the spiel you need.',
+      onShow: () => spielTab.renderIfNeeded()
+    },
+    email: {
+      view: viewEmail,
+      title: 'Email Template',
+      subtitle: 'Pick a category, then use the template you need.',
+      onShow: () => emailTab.renderIfNeeded()
+    },
+    teams: {
+      view: viewTeams,
+      title: 'MS Teams',
+      subtitle: 'Jump straight into a Teams chat with someone by email.',
+      onShow: () => syncTeamsFields()
+    },
+    tstool: {
+      view: viewTsTool,
+      title: 'Toolkit',
+      subtitle: 'Quick fixes you can copy and run yourself.',
+      onShow: () => renderToolkitCats()
+    }
+  };
+
+  const allTabs = Object.values(tabConfigs);
+
+  function activateTab(target) {
+    allTabs.forEach(({ view }) => {
+      view.classList.toggle('active', view === target.view);
+    });
+    pageTitle.textContent = target.title;
+    pageSubtitle.textContent = target.subtitle;
+    if (target.onShow) target.onShow();
+  }
+
+  mainTabSelect.addEventListener('change', () => {
+    activateTab(tabConfigs[mainTabSelect.value]);
+  });
+
+
+  // ---- Reusable category/list module (used by Call Spiel and Email Template) ----
+  function createListTab(opts) {
+    const catsEl = document.getElementById(opts.catsId);
+    const listEl = document.getElementById(opts.listId);
+    const addBtnEl = document.getElementById(opts.addBtnId);
+    const data = opts.defaultData();
+    let activeCat = null;
+    let rendered = false;
+    let editingIndex = null;
+    let editingIsNew = false;
+
+    function loadOverrides() {
+      try {
+        const raw = localStorage.getItem(opts.storageKey);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        Object.keys(data).forEach(cat => {
+          if (Array.isArray(saved[cat])) data[cat] = saved[cat];
+        });
+      } catch (e) {}
+    }
+
+    function saveOverrides() {
+      try {
+        localStorage.setItem(opts.storageKey, JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    function renderCats() {
+      catsEl.innerHTML = '';
+      Object.keys(data).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'spiel-cat-btn';
+        btn.textContent = cat;
+        btn.addEventListener('click', () => selectCat(cat));
+        catsEl.appendChild(btn);
+      });
+      rendered = true;
+      selectCat(Object.keys(data)[0]);
+    }
+
+    function selectCat(cat) {
+      activeCat = cat;
+      editingIndex = null;
+      editingIsNew = false;
+      [...catsEl.children].forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === cat);
+      });
+      const isDynamic = !!(opts.dynamicCategories && opts.dynamicCategories[cat]);
+      addBtnEl.style.display = isDynamic ? 'none' : '';
+      renderList(cat);
+    }
+
+    addBtnEl.addEventListener('click', () => {
+      if (!activeCat) return;
+      data[activeCat].push('');
+      editingIndex = data[activeCat].length - 1;
+      editingIsNew = true;
+      renderList(activeCat);
+    });
+
+    function renderList(cat) {
+      listEl.innerHTML = '';
+      if (opts.dynamicCategories && opts.dynamicCategories[cat]) {
+        opts.dynamicCategories[cat](listEl);
+        return;
+      }
+      const items = data[cat] || [];
+      if (!items.length) {
+        listEl.innerHTML = '<div class="spiel-empty">' + opts.emptyLabel + '</div>';
+        return;
+      }
+      items.forEach((text, i) => {
+        const item = document.createElement('div');
+        item.className = 'spiel-item';
+
+        if (editingIndex === i) {
+          const textarea = document.createElement('textarea');
+          textarea.className = 'spiel-edit-area';
+          textarea.value = text;
+
+          const btnRow = document.createElement('div');
+          btnRow.className = 'btn-row';
+
+          const saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', () => {
+            const newText = textarea.value.trim();
+            if (newText) {
+              data[cat][i] = newText;
+              saveOverrides();
+            } else if (editingIsNew) {
+              data[cat].splice(i, 1);
+              saveOverrides();
+            }
+            editingIndex = null;
+            editingIsNew = false;
+            renderList(cat);
+          });
+
+          const cancelBtn = document.createElement('button');
+          cancelBtn.type = 'button';
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.addEventListener('click', () => {
+            if (editingIsNew) {
+              data[cat].splice(i, 1);
+            }
+            editingIndex = null;
+            editingIsNew = false;
+            renderList(cat);
+          });
+
+          btnRow.appendChild(saveBtn);
+          btnRow.appendChild(cancelBtn);
+          item.appendChild(textarea);
+          item.appendChild(btnRow);
+          listEl.appendChild(item);
+          textarea.focus();
+          return;
+        }
+
+        const textEl = document.createElement('div');
+        textEl.className = 'spiel-text';
+        textEl.textContent = applyAgentName(text);
+
+        const btnRow = document.createElement('div');
+        btnRow.className = 'btn-row';
+
+        const editBtnEl = document.createElement('button');
+        editBtnEl.type = 'button';
+        editBtnEl.textContent = 'Edit';
+        editBtnEl.addEventListener('click', () => {
+          editingIndex = i;
+          editingIsNew = false;
+          renderList(cat);
+        });
+
+        const deleteBtnEl = document.createElement('button');
+        deleteBtnEl.type = 'button';
+        deleteBtnEl.className = 'danger';
+        deleteBtnEl.textContent = 'Delete';
+        deleteBtnEl.addEventListener('click', () => {
+          data[cat].splice(i, 1);
+          saveOverrides();
+          renderList(cat);
+        });
+
+        btnRow.appendChild(editBtnEl);
+        btnRow.appendChild(deleteBtnEl);
+        item.appendChild(textEl);
+        item.appendChild(btnRow);
+        listEl.appendChild(item);
+      });
+    }
+
+    loadOverrides();
+
+    return {
+      renderIfNeeded: () => { if (!rendered) renderCats(); },
+      refresh: () => { if (activeCat) renderList(activeCat); }
+    };
+  }
+
+  // ---- Call Spiel ----
+  // Placeholder content — tell me your exact wording per category and I'll swap these in.
+  const spielTab = createListTab({
+    catsId: 'spielCats',
+    listId: 'spielList',
+    addBtnId: 'addSpielBtn',
+    storageKey: 'call-spiel-data-v2',
+    emptyLabel: 'No spiels in this category yet.',
+    defaultData: () => ({
+      'Opening': [
+        'Thank you for calling [Company] IT Support, my name is [Agent Name]. May I have your name and login ID, please?',
+        'Good [morning/afternoon], IT Support, this is [Agent Name] speaking. How can I help you today?',
+        'Thank you for calling [Company] IT Support, this is [Agent Name]. Who do I have the pleasure of speaking with?',
+        'IT Support, this is [Agent Name], how may I assist you today?'
+      ],
+      'Verification': [
+        'Before we get started, may I verify your login ID and full name for security purposes?',
+        'For account security, can you confirm your login ID and the location you\u2019re currently working from?',
+        'I just need to verify a couple of details first — can you confirm your full name and login ID, please?',
+        'To pull up your account, I\u2019ll need to verify your identity. Can you provide your login ID and email on file?'
+      ],
+      'Issue Identification': [
+        'Can you walk me through exactly what\u2019s happening, and when you first noticed the issue?',
+        'To make sure I understand correctly, can you describe what you were doing right before this occurred?',
+        'Is this affecting one specific application or device, or is it happening across the board?',
+        'Just to clarify the issue — are you seeing an error message, or is something simply not working as expected?'
+      ],
+      'Troubleshooting': [
+        'I\u2019m going to walk you through a few steps on my end, this may take a couple of minutes, thanks for your patience.',
+        'Let\u2019s try a quick restart of the application first and see if that resolves it — go ahead and close it out.',
+        'I\u2019m going to run a few checks on my end while you stay on the line, I\u2019ll let you know what I find.',
+        'Let\u2019s isolate the issue — can you try this on a different network or device so we can narrow it down?'
+      ],
+      'Empathy': [
+        'I completely understand how frustrating this must be, and I\u2019m here to help get this sorted out for you.',
+        'I\u2019m sorry for the inconvenience this has caused. Let\u2019s work through this together and find a solution.',
+        'I can see why that would be concerning, thank you for bringing this to my attention, I\u2019ll do my best to help.',
+        'I really appreciate your patience with this, I know it\u2019s not ideal, and I\u2019m going to make sure we get it fixed.'
+      ],
+      'Hold': [
+        'May I place you on a brief hold while I look into this for you? Thank you, please stay on the line.',
+        'I need a moment to check this on my end — is it alright if I place you on hold for about 2 to 3 minutes?',
+        'Thank you for your patience. Would it be okay if I put you on a short hold while I pull up your account?',
+        'I\u2019m going to place you on hold for a moment while I verify this information, I\u2019ll be right back with you.'
+      ],
+      'Transfer': [
+        'This will need to be handled by our [Team Name] team. I\u2019m going to transfer you now — please stay on the line.',
+        'I\u2019m not able to resolve this on my end, so I\u2019ll connect you with a specialist. One moment while I transfer your call.',
+        'I\u2019ll connect you with someone from [Team Name] who can better assist with this. Please hold while I transfer you.',
+        'Let me get you over to the right team for this issue. I\u2019m transferring you now, please stay on the line.'
+      ],
+      'Escalation': [
+        'Since this issue needs deeper investigation, I\u2019m escalating this to our [Team Name] team for further review.',
+        'This falls outside what I\u2019m able to resolve directly, so I\u2019ll be raising this with a senior technician.',
+        'I\u2019m going to log this as a priority escalation given the impact you\u2019ve described — someone will follow up shortly.',
+        'I\u2019ll be escalating this ticket to [Team Name]. You\u2019ll receive an update from them within [timeframe].'
+      ],
+      'Resolution': [
+        'I\u2019ve applied the fix on my end and confirmed the issue is resolved — can you confirm it looks good on your side too?',
+        'That should do it. Can you try that again now and let me know if everything\u2019s working as expected?',
+        'I\u2019ve made the necessary changes, and this should now be resolved. Please test it and let me know if anything comes up.',
+        'Good news — the issue has been fixed. Go ahead and check on your end whenever you\u2019re ready.'
+      ],
+      'Closing': [
+        'Is there anything else I can help you with today? Thank you for calling [Company] IT Support, have a great day.',
+        'I\u2019ll go ahead and close this out on my end. Thank you for your patience, and have a wonderful day.',
+        'Thank you for calling [Company] IT Support, we appreciate your patience today. Take care.',
+        'That takes care of everything on my end. Thanks for calling, and have a great rest of your day.'
+      ]
+    })
+  });
+
+  // ---- Email Template ----
+  // Placeholder content — tell me your exact wording per category and I'll swap these in.
+  const emailTab = createListTab({
+    catsId: 'emailCats',
+    listId: 'emailList',
+    addBtnId: 'addEmailBtn',
+    storageKey: 'email-template-data-v1',
+    emptyLabel: 'No templates in this category yet.',
+    defaultData: () => ({
+      'Acknowledgement': [
+        'Subject: We received your request\n\nHi [Name],\n\nThanks for reaching out. We\u2019ve received your request and a member of our team will follow up shortly.\n\nBest,\n[Agent Name]',
+        'Subject: Your ticket has been logged\n\nHi [Name],\n\nThis confirms we\u2019ve logged your issue as ticket #[Ticket Number]. We\u2019ll be in touch with an update soon.\n\nBest,\n[Agent Name]'
+      ],
+      'Follow-up': [
+        'Subject: Checking in on your request\n\nHi [Name],\n\nJust following up on ticket #[Ticket Number] to see if everything is working as expected. Let us know if you need anything further.\n\nBest,\n[Agent Name]',
+        'Subject: Any updates on your end?\n\nHi [Name],\n\nWe wanted to check in and see if the issue is still occurring, or if this can be closed out on our end.\n\nBest,\n[Agent Name]'
+      ],
+      'Resolution': [
+        'Subject: Your issue has been resolved\n\nHi [Name],\n\nGood news — we\u2019ve resolved the issue reported in ticket #[Ticket Number]. Please let us know if anything else comes up.\n\nBest,\n[Agent Name]',
+        'Subject: Ticket closed\n\nHi [Name],\n\nThis ticket has been marked as resolved. If you run into the same issue again, feel free to reply and we\u2019ll reopen it.\n\nBest,\n[Agent Name]'
+      ],
+      'Escalation': [
+        'Subject: Your request has been escalated\n\nHi [Name],\n\nWe\u2019ve escalated ticket #[Ticket Number] to our [Team Name] team for further review. They\u2019ll reach out with next steps.\n\nBest,\n[Agent Name]',
+        'Subject: Additional support needed\n\nHi [Name],\n\nThis issue requires specialized support, so we\u2019ve routed it to [Team Name]. Thank you for your patience.\n\nBest,\n[Agent Name]'
+      ],
+      'Manager Approval': []
+    }),
+    dynamicCategories: {
+      'Manager Approval': renderManagerApprovalView
+    }
+  });
+
+  function renderManagerApprovalView(container) {
+    container.innerHTML =
+      '<p class="ts-note">Client details and the issue description are pulled live from the Notes Maker tab. Just add the manager\u2019s name.</p>' +
+      '<div class="field"><label for="mgrApprovalName">Manager\u2019s name</label>' +
+      '<input type="text" id="mgrApprovalName" placeholder="Manager\u2019s Name"></div>' +
+      '<div class="row" style="margin-top:12px;"><button class="primary" id="mgrApprovalCopyBtn" type="button">Copy email</button></div>' +
+      '<div class="status" id="mgrApprovalStatus">Copied — paste into your email</div>' +
+      '<div class="ts-what-happens-title" style="margin-top:16px;">Preview</div>' +
+      '<div class="preview" id="mgrApprovalPreview" style="min-height:auto;"></div>';
+
+    const nameInput = document.getElementById('mgrApprovalName');
+    const previewEl = document.getElementById('mgrApprovalPreview');
+    const copyBtn = document.getElementById('mgrApprovalCopyBtn');
+    const statusEl = document.getElementById('mgrApprovalStatus');
+
+    function buildManagerEmail() {
+      const mgrName = nameInput.value.trim() || 'Manager\u2019s Name';
+      const clientName = inputs.clientName.value.trim();
+      const issueDesc = inputs.issue.value.trim();
+      const lines = [];
+      lines.push('Hello ' + mgrName + ',');
+      lines.push('');
+      lines.push('Your employee has contacted the Service Desk with ' + issueDesc + '. We\u2019ve encountered issues verifying their identity. We require your approval for verification to assist further. Please reply to let us know if you approve.');
+      lines.push('');
+      lines.push('Please note: For security reasons, it is your responsibility to ensure your staff member is needing assistance with their login account.');
+      lines.push('');
+      lines.push('Below are details from our call with ' + clientName + ':');
+      lines.push('');
+      lines.push('Client Name: ' + clientName);
+      lines.push('Login ID: ' + inputs.loginId.value.trim());
+      lines.push('Current Location: ' + inputs.currentLocation.value.trim());
+      lines.push('Phone Number: ' + inputs.phoneNumber.value.trim());
+      lines.push('Alt Number: NA');
+      lines.push('Email address: ' + inputs.email.value.trim());
+      lines.push('');
+      lines.push(SEP);
+      lines.push('Device Name: ' + inputs.deviceName.value.trim());
+      lines.push('Operating System and Version: NA');
+      lines.push('Drive Path/Folder Name: NA');
+      lines.push('Printer Name: NA');
+      lines.push('');
+      lines.push(SEP);
+      return lines.join('\n');
+    }
+
+    function refreshPreview() {
+      previewEl.textContent = buildManagerEmail();
+    }
+
+    nameInput.addEventListener('input', refreshPreview);
+    refreshPreview();
+
+    copyBtn.addEventListener('click', async () => {
+      const ok = await copyText(buildManagerEmail());
+      if (ok) {
+        copyBtn.textContent = 'Copied';
+        copyBtn.classList.add('copied');
+        statusEl.classList.add('show');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy email';
+          copyBtn.classList.remove('copied');
+          statusEl.classList.remove('show');
+        }, 1800);
+      } else {
+        alert('Could not access the clipboard. Select the preview text and copy it manually.');
+      }
+    });
+  }
+
+  // ---- MS Teams ----
+  const teamsEmailInput = document.getElementById('teamsEmail');
+  const teamsClientNameInput = document.getElementById('teamsClientName');
+  const teamsTicketNumberInput = document.getElementById('teamsTicketNumber');
+  const teamsMessageInput = document.getElementById('teamsMessage');
+  const teamsOpenBtn = document.getElementById('teamsOpenBtn');
+  const errTeamsEmail = document.getElementById('err-teamsEmail');
+
+  function syncTeamsFields() {
+    teamsEmailInput.value = inputs.email.value.trim();
+    teamsClientNameInput.value = inputs.clientName.value.trim();
+    teamsTicketNumberInput.value = inputs.ticketNumber.value.trim();
+  }
+
+  ['email', 'clientName', 'ticketNumber'].forEach(id => {
+    inputs[id].addEventListener('input', syncTeamsFields);
+  });
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  teamsOpenBtn.addEventListener('click', () => {
+    const email = teamsEmailInput.value.trim();
+    if (!isValidEmail(email)) {
+      teamsEmailInput.classList.add('invalid');
+      errTeamsEmail.classList.add('show');
+      teamsEmailInput.focus();
+      return;
+    }
+    teamsEmailInput.classList.remove('invalid');
+    errTeamsEmail.classList.remove('show');
+    let url = 'https://teams.microsoft.com/l/chat/0/0?users=' + encodeURIComponent(email);
+    const message = teamsMessageInput.value.trim();
+    if (message) {
+      url += '&message=' + encodeURIComponent(message);
+    }
+    window.open(url, '_blank');
+  });
+
+  teamsEmailInput.addEventListener('input', () => {
+    if (teamsEmailInput.value.trim()) {
+      teamsEmailInput.classList.remove('invalid');
+      errTeamsEmail.classList.remove('show');
+    }
+  });
+
+  teamsEmailInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      teamsOpenBtn.click();
+    }
+  });
+
+  // ---- Toolkit ----
+  const TOOLKIT_ITEMS = [
+    {
+      name: 'Clear MS Teams Cache',
+      admin: false,
+      what: ['Closes Teams if it\u2019s running', 'Deletes cache folders for both classic and new Teams', 'Relaunches Teams automatically'],
+      script: [
+        'Get-Process -Name "Teams","ms-teams" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$classicPath = "$env:APPDATA\\Microsoft\\Teams"',
+        '@("Application Cache\\Cache","blob_storage","Cache","Code Cache","databases","GPUCache","IndexedDB","Local Storage","tmp") | ForEach-Object {',
+        '    Remove-Item -Path (Join-Path $classicPath $_) -Recurse -Force -ErrorAction SilentlyContinue',
+        '}',
+        '$newCache = "$env:LOCALAPPDATA\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache"',
+        'Remove-Item -Path $newCache -Recurse -Force -ErrorAction SilentlyContinue',
+        '$classicExe = "$env:LOCALAPPDATA\\Microsoft\\Teams\\current\\Teams.exe"',
+        'if (Test-Path $classicExe) { Start-Process $classicExe } else { Start-Process "shell:AppsFolder\\MSTeams_8wekyb3d8bbwe!MSTeams" }'
+      ],
+      manual: [
+        "Close Microsoft Teams completely \u2014 right-click its icon in the system tray and choose Quit, if it's there.",
+        "Press Windows + R, type %appdata%\\Microsoft\\Teams, and press Enter.",
+        "Delete the contents of these folders: Cache, blob_storage, databases, GPUCache, IndexedDB, Local Storage, tmp.",
+        "For the new Teams app instead: Windows + R, type %localappdata%\\Packages\\MSTeams_8wekyb3d8bbwe\\LocalCache, and delete its contents.",
+        "Reopen Teams and sign back in."
+      ]
+    },
+    {
+      name: 'Reset New Teams',
+      admin: false,
+      what: ['Stops the new Teams app', 'Clears its local cache and state', 'Re-registers the app so it starts fresh'],
+      script: [
+        'Get-Process -Name "ms-teams" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$pkg = Get-AppxPackage -Name "MSTeams"',
+        'if ($pkg) {',
+        '    $path = "$env:LOCALAPPDATA\\Packages\\$($pkg.PackageFamilyName)"',
+        '    Remove-Item -Path "$path\\LocalCache" -Recurse -Force -ErrorAction SilentlyContinue',
+        '    Remove-Item -Path "$path\\LocalState" -Recurse -Force -ErrorAction SilentlyContinue',
+        '    Add-AppxPackage -DisableDevelopmentMode -Register "$($pkg.InstallLocation)\\AppXManifest.xml"',
+        '} else {',
+        '    Write-Host "New Teams package not found on this machine."',
+        '}'
+      ],
+      manual: [
+        "Open Settings > Apps > Installed apps.",
+        "Find Microsoft Teams, click the three-dot menu, and choose Advanced options.",
+        "Scroll down and click Reset.",
+        "Reopen Teams and sign back in."
+      ]
+    },
+    {
+      name: 'Enable Teams Meeting Plugin in Outlook',
+      admin: true,
+      what: [
+        'Checks whether the Teams Meeting add-in (TeamsAddin.FastConnect) is registered in Outlook',
+        'If it\u2019s found, sets it to load automatically every time Outlook starts',
+        'Clears Outlook\u2019s disabled-items list so the add-in can\u2019t stay silently blocked',
+        'If it\u2019s not found, lets you know Teams may not be installed or signed in'
+      ],
+      script: [
+        'Write-Host "Checking Teams Meeting Add-in..." -ForegroundColor Green',
+        '$addinName = "TeamsAddin.FastConnect"',
+        '$addin = Get-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Office\\Outlook\\Addins\\$addinName" -ErrorAction SilentlyContinue',
+        'if ($addin) {',
+        '    Write-Host "Teams Add-in found." -ForegroundColor Green',
+        '    Set-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Office\\Outlook\\Addins\\$addinName" -Name "LoadBehavior" -Value 3',
+        '    Write-Host "LoadBehavior set to 3." -ForegroundColor Green',
+        '    $resiliencyPath = "HKCU:\\Software\\Microsoft\\Office\\16.0\\Outlook\\Resiliency\\DisabledItems"',
+        '    if (Test-Path $resiliencyPath) {',
+        '        Remove-ItemProperty -Path $resiliencyPath -Name "*" -ErrorAction SilentlyContinue',
+        '    }',
+        '    Write-Host "Disabled items checked." -ForegroundColor Green',
+        '    Write-Host "Teams Meeting Add-in has been enabled." -ForegroundColor Green',
+        '} else {',
+        '    Write-Host "Teams Add-in not found." -ForegroundColor Red',
+        '    Write-Host "Please ensure Microsoft Teams is installed and signed in." -ForegroundColor Yellow',
+        '}'
+      ],
+      manual: [
+        "In Outlook, go to File > Options > Add-ins.",
+        "At the bottom, set the \"Manage\" dropdown to COM Add-ins and click Go.",
+        "Check the box next to \"Microsoft Teams Meeting Add-in for Microsoft Office\".",
+        "Click OK and restart Outlook."
+      ]
+    },
+    {
+      name: 'Create New Outlook Profile',
+      admin: false,
+      what: ['Opens the Mail setup applet used to create/manage Outlook profiles', 'You create the new profile through the normal Windows dialog that opens'],
+      script: [
+        'Write-Host "Opening Mail setup..."',
+        'Start-Process control.exe -ArgumentList "/name Microsoft.Mail"'
+      ],
+      manual: [
+        "Close Outlook completely.",
+        "Open Control Panel and search for Mail.",
+        "Click \"Show Profiles\", then Add.",
+        "Name the new profile and follow the prompts to add the account.",
+        "Choose to use this profile, or set Outlook to prompt for a profile at startup."
+      ]
+    },
+    {
+      name: 'Clear Outlook AutoComplete',
+      admin: false,
+      what: ['Closes Outlook', 'Deletes the local AutoComplete (nickname) cache', 'Reopens Outlook'],
+      script: [
+        'Get-Process -Name "OUTLOOK" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$roamCache = "$env:LOCALAPPDATA\\Microsoft\\Outlook\\RoamCache"',
+        'Get-ChildItem -Path $roamCache -Filter "Stream_Autocomplete_*.dat" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue',
+        'Start-Process outlook.exe'
+      ],
+      manual: [
+        "In a new email, click the To or Cc field, start typing the name, and click the X next to a suggestion to remove it individually.",
+        "To clear the entire list: File > Options > Mail, scroll to \"Send messages\", and click \"Empty Auto-Complete List\"."
+      ]
+    },
+    {
+      name: 'Rebuild OST File',
+      admin: false,
+      what: ['Closes Outlook', 'Renames the local .ost file(s) so Outlook rebuilds them from the mail server', 'Reopens Outlook — first sync can take a while for large mailboxes'],
+      script: [
+        'Get-Process -Name "OUTLOOK" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$ostPath = "$env:LOCALAPPDATA\\Microsoft\\Outlook"',
+        'Get-ChildItem -Path $ostPath -Filter "*.ost" -ErrorAction SilentlyContinue | ForEach-Object {',
+        '    Rename-Item -Path $_.FullName -NewName ($_.Name + ".old") -Force -ErrorAction SilentlyContinue',
+        '}',
+        'Start-Process outlook.exe'
+      ],
+      manual: [
+        "Close Outlook completely.",
+        "Press Windows + R, type %localappdata%\\Microsoft\\Outlook, and press Enter.",
+        "Rename the .ost file (for example, add \".old\" to the end).",
+        "Reopen Outlook \u2014 it will rebuild the file automatically, which can take a while for large mailboxes."
+      ]
+    },
+    {
+      name: 'Flush DNS',
+      admin: true,
+      what: ['Clears the local DNS resolver cache', 'Releases and renews the IP address'],
+      script: [
+        'ipconfig /flushdns',
+        'ipconfig /release',
+        'ipconfig /renew'
+      ],
+      manual: [
+        "Right-click Start and open Windows Terminal or Command Prompt.",
+        "Type ipconfig /flushdns and press Enter."
+      ]
+    },
+    {
+      name: 'Reset Network Stack',
+      admin: true,
+      what: ['Resets Winsock', 'Resets the TCP/IP stack', 'Flushes DNS', 'Requires a restart to fully take effect'],
+      script: [
+        'netsh winsock reset',
+        'netsh int ip reset',
+        'ipconfig /flushdns',
+        'Write-Host "Restart this computer for the changes to fully apply."'
+      ],
+      manual: [
+        "Open Command Prompt as Administrator (search \"cmd\", right-click, Run as administrator).",
+        "Run netsh winsock reset and press Enter.",
+        "Run netsh int ip reset and press Enter.",
+        "Restart the computer for the changes to fully apply."
+      ]
+    },
+    {
+      name: 'Clear Browser Cache',
+      admin: false,
+      what: ['Closes Edge and Chrome', 'Deletes their cache folders'],
+      script: [
+        'Get-Process -Name "msedge","chrome" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '@("$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache","$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache") | ForEach-Object {',
+        '    Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue',
+        '}'
+      ],
+      manual: [
+        "Edge: Settings > Privacy, search, and services > Choose what to clear > check Cached images and files > Clear now.",
+        "Chrome: Settings > Privacy and security > Clear browsing data > check Cached images and files > Clear data."
+      ]
+    },
+    {
+      name: 'Restart Print Spooler',
+      admin: true,
+      what: ['Stops the Print Spooler service', 'Clears stuck print jobs', 'Restarts the service'],
+      script: [
+        'Stop-Service -Name Spooler -Force',
+        'Remove-Item -Path "$env:SystemRoot\\System32\\spool\\PRINTERS\\*" -Force -ErrorAction SilentlyContinue',
+        'Start-Service -Name Spooler'
+      ],
+      manual: [
+        "Press Windows + R, type services.msc, and press Enter.",
+        "Find Print Spooler in the list, right-click it, and choose Restart."
+      ]
+    },
+    {
+      name: 'Clear Credential Manager',
+      admin: false,
+      what: ['Lists all stored Windows credentials', 'Deletes every stored credential'],
+      script: [
+        'cmdkey /list',
+        'cmdkey /list | Select-String "Target:" | ForEach-Object {',
+        '    $target = ($_ -split "Target: ")[1].Trim()',
+        '    cmdkey /delete:$target',
+        '}'
+      ],
+      manual: [
+        "Open Control Panel and search for Credential Manager.",
+        "Under Windows Credentials or Generic Credentials, click the entry you want to remove.",
+        "Click Remove and confirm."
+      ]
+    },
+    {
+      name: 'Refresh Microsoft 365 License',
+      admin: false,
+      what: ['Closes Office apps', 'Clears cached Office licensing/identity tokens', 'Sign back in when you reopen an Office app to refresh the license'],
+      script: [
+        'Get-Process -Name "WINWORD","EXCEL","POWERPNT","OUTLOOK","MSACCESS" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        'Remove-Item -Path "$env:LOCALAPPDATA\\Microsoft\\Office\\16.0\\Licensing" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Remove-Item -Path "$env:LOCALAPPDATA\\Microsoft\\OfficeFileCache" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Write-Host "Reopen an Office app and sign back in with your Microsoft 365 account."'
+      ],
+      manual: [
+        "Open any Office app, such as Word.",
+        "Go to File > Account.",
+        "Click Sign out, then close the app.",
+        "Reopen the app and sign back in with the Microsoft 365 account."
+      ]
+    },
+    {
+      name: 'Run SFC Scan',
+      admin: true,
+      what: ['Scans and repairs corrupted Windows system files', 'Can take several minutes to finish'],
+      script: [
+        'sfc /scannow'
+      ],
+      manual: [
+        "Open Command Prompt as Administrator.",
+        "Type sfc /scannow and press Enter.",
+        "Wait for the scan to finish \u2014 this can take several minutes."
+      ]
+    },
+    {
+      name: 'Run DISM Repair',
+      admin: true,
+      what: ['Checks the Windows system image for corruption', 'Repairs it using Windows Update as the source', 'Run an SFC scan afterward for best results'],
+      script: [
+        'DISM /Online /Cleanup-Image /CheckHealth',
+        'DISM /Online /Cleanup-Image /RestoreHealth'
+      ],
+      manual: [
+        "Open Command Prompt as Administrator.",
+        "Type DISM /Online /Cleanup-Image /RestoreHealth and press Enter.",
+        "Wait for it to complete, then run an SFC scan afterward for best results."
+      ]
+    },
+    {
+      name: 'Launch Quick Assist',
+      admin: false,
+      what: ['Opens Quick Assist so you can give or receive remote help'],
+      script: [
+        'try { Start-Process "ms-quick-assist:" } catch { Start-Process "quickassist.exe" }'
+      ],
+      manual: [
+        "Press the Windows key, type Quick Assist, and press Enter.",
+        "Choose \"Give assistance\" or \"Get assistance\" depending on which side you're on."
+      ]
+    },
+    {
+      name: 'Map Network Drive',
+      admin: false,
+      what: ['Maps a network share to a drive letter', 'Edit the drive letter and path at the top of the script before running it'],
+      script: [
+        '# Edit these two lines before running',
+        '$DriveLetter = "Z"',
+        '$NetworkPath = "\\\\server\\share"',
+        '',
+        'New-PSDrive -Name $DriveLetter -PSProvider FileSystem -Root $NetworkPath -Persist -Scope Global'
+      ],
+      manual: [
+        "Open File Explorer.",
+        "Click \"This PC\", then choose \"Map network drive\" from the ribbon (or right-click \"This PC\").",
+        "Pick a drive letter, enter the folder path (for example, \\\\server\\share), check \"Reconnect at sign-in\", and click Finish."
+      ]
+    },
+    {
+      name: 'Clear Windows Temp Files',
+      admin: true,
+      what: ['Deletes files in the user Temp folder', 'Deletes files in the system Temp folder'],
+      script: [
+        'Remove-Item -Path "$env:TEMP\\*" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Remove-Item -Path "$env:SystemRoot\\Temp\\*" -Recurse -Force -ErrorAction SilentlyContinue'
+      ],
+      manual: [
+        "Press Windows + R, type %temp%, and press Enter.",
+        "Select all files (Ctrl+A) and delete them \u2014 some in-use files may be skipped, which is normal.",
+        "Also check Settings > System > Storage > Temporary files, select items, and click Remove files."
+      ]
+    },
+    {
+      name: 'Restart Windows Explorer',
+      admin: false,
+      what: ['Restarts the Explorer process', 'Refreshes the taskbar, desktop, and File Explorer windows'],
+      script: [
+        'Stop-Process -Name explorer -Force',
+        'Start-Sleep -Seconds 2',
+        'Start-Process explorer.exe'
+      ],
+      manual: [
+        "Press Ctrl + Shift + Esc to open Task Manager.",
+        "Find Windows Explorer in the list, right-click it, and choose Restart."
+      ]
+    },
+    {
+      name: 'VPN Troubleshooting',
+      admin: true,
+      what: ['Collects current network/adapter info', 'Flushes DNS', 'Restarts active network adapters'],
+      script: [
+        'ipconfig /all',
+        'ipconfig /flushdns',
+        'Get-NetAdapter | Where-Object { $_.Status -eq "Up" } | Restart-NetAdapter -Confirm:$false',
+        'Write-Host "Now try reconnecting the VPN client."'
+      ],
+      manual: [
+        "Disconnect and reconnect the VPN client.",
+        "Check Settings > Network & Internet > VPN for the connection status.",
+        "Restart the computer if the connection still won't establish."
+      ]
+    },
+    {
+      name: 'Audio Device Reset',
+      admin: true,
+      what: ['Restarts the Windows Audio service', 'Restarts the Audio Endpoint Builder service'],
+      script: [
+        'Stop-Service -Name Audiosrv -Force',
+        'Start-Service -Name Audiosrv',
+        'Restart-Service -Name AudioEndpointBuilder -Force'
+      ],
+      manual: [
+        "Right-click the speaker icon in the system tray and choose Sound settings.",
+        "Under Output, make sure the correct playback device is selected.",
+        "Or go to Settings > System > Sound and use the built-in troubleshooter."
+      ]
+    },
+    {
+      name: 'OneDrive Reset',
+      admin: false,
+      what: ['Resets OneDrive using Microsoft\u2019s documented reset switch', 'Relaunches OneDrive, which will resync your files'],
+      script: [
+        '$onedrive = "$env:LOCALAPPDATA\\Microsoft\\OneDrive\\OneDrive.exe"',
+        'if (-not (Test-Path $onedrive)) { $onedrive = "$env:PROGRAMFILES\\Microsoft OneDrive\\OneDrive.exe" }',
+        'Start-Process $onedrive -ArgumentList "/reset"',
+        'Start-Sleep -Seconds 10',
+        'Start-Process $onedrive'
+      ],
+      manual: [
+        "Right-click the OneDrive icon in the system tray and choose Settings.",
+        "Go to Account and click \"Unlink this PC\", then sign back in to relink it.",
+        "Alternatively: Windows + R, paste %localappdata%\\Microsoft\\OneDrive\\onedrive.exe /reset, press Enter, wait a minute, then reopen OneDrive from the Start menu."
+      ]
+    },
+    {
+      name: 'Clear Citrix Workspace App Cache',
+      admin: false,
+      what: ['Closes Citrix Workspace app', 'Deletes its local cache folders', 'Fixes stale or missing published apps/desktops after relaunch'],
+      script: [
+        'Get-Process -Name "concentr","Receiver","CitrixWorkspaceApp","wfcrun32","SelfService" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$paths = @("$env:APPDATA\\ICAClient\\cache","$env:LOCALAPPDATA\\Citrix\\SelfService","$env:APPDATA\\Citrix\\SelfService")',
+        'foreach ($p in $paths) {',
+        '    if (Test-Path $p) { Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue }',
+        '}',
+        'Write-Host "Citrix Workspace cache cleared. Reopen Citrix Workspace app."'
+      ],
+      manual: [
+        "Close Citrix Workspace app completely — check the system tray for the icon.",
+        "Press Windows + R, type %appdata%\\ICAClient, press Enter, and delete the contents of the \"cache\" folder.",
+        "Also check %localappdata%\\Citrix\\SelfService and clear its contents.",
+        "Reopen Citrix Workspace app and sign back in."
+      ]
+    },
+    {
+      name: 'Reset Citrix Workspace App',
+      admin: false,
+      what: ['Removes the stored store/server configuration entirely', 'More thorough than a cache clear — use when the app won\u2019t connect at all or shows the wrong resources'],
+      script: [
+        'Get-Process -Name "concentr","Receiver","CitrixWorkspaceApp","wfcrun32","SelfService" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        'Remove-Item -Path "$env:APPDATA\\Citrix" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Remove-Item -Path "$env:LOCALAPPDATA\\Citrix" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Write-Host "Citrix Workspace app has been reset. Reopen it and re-enter your store/server URL."'
+      ],
+      manual: [
+        "Close Citrix Workspace app.",
+        "Open the app, go to Account Settings, and remove the configured store manually.",
+        "Reopen the app and re-add the store URL your organization provided."
+      ]
+    },
+    {
+      name: 'Clear VMware Horizon Client Cache',
+      admin: false,
+      what: ['Closes VMware Horizon Client', 'Deletes its local connection cache', 'Forces a fresh connection to the broker on next launch'],
+      script: [
+        'Get-Process -Name "vmware-view","vmware-remotemks" -ErrorAction SilentlyContinue | Stop-Process -Force',
+        'Start-Sleep -Seconds 2',
+        '$path = "$env:APPDATA\\VMware\\VDM\\Client"',
+        'if (Test-Path $path) { Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue }',
+        'Write-Host "VMware Horizon Client cache cleared. Reopen Horizon Client and reconnect to your broker."'
+      ],
+      manual: [
+        "Close VMware Horizon Client.",
+        "Press Windows + R, type %appdata%\\VMware\\VDM\\Client, press Enter, and delete its contents.",
+        "Reopen Horizon Client, re-enter your connection server address, and sign back in."
+      ]
+    },
+    {
+      name: 'Clear FSLogix Profile Cache',
+      admin: true,
+      what: ['Run this inside the virtual desktop session itself, not the physical PC', 'Stops the FSLogix service and clears the local profile cache copy', 'Forces the profile container to remount cleanly on next logon'],
+      script: [
+        'Stop-Service frxsvc -Force -ErrorAction SilentlyContinue',
+        '$localProfile = "$env:LOCALAPPDATA\\FSLogix"',
+        'if (Test-Path $localProfile) { Remove-Item -Path $localProfile -Recurse -Force -ErrorAction SilentlyContinue }',
+        'Start-Service frxsvc -ErrorAction SilentlyContinue',
+        'Write-Host "Local FSLogix cache cleared. Sign out of the virtual desktop completely, then sign back in."'
+      ],
+      manual: [
+        "This is done inside the virtual desktop session, not the local PC — log into the VDI session first.",
+        "Have the user save their work, then sign out of the virtual desktop completely (not just lock it).",
+        "Sign back in and confirm the profile loads correctly.",
+        "If it still fails, the profile disk (VHDX) may be locked on the file share — escalate to the VDI/infrastructure team."
+      ]
+    },
+    {
+      name: 'Clear Cached RDP Credentials',
+      admin: false,
+      what: ['Removes saved TERMSRV credentials from Credential Manager', 'Fixes RDP/VDI logons that fail with a password error even though the password is correct'],
+      script: [
+        'cmdkey /list | Select-String "TERMSRV" | ForEach-Object {',
+        '    $target = ($_ -split "Target: ")[1].Trim()',
+        '    cmdkey /delete:$target',
+        '}',
+        'Write-Host "Cached RDP credentials removed. Try connecting again and re-enter your credentials."'
+      ],
+      manual: [
+        "Open Control Panel and search for Credential Manager.",
+        "Go to Windows Credentials and look for entries starting with \"TERMSRV/\".",
+        "Remove each TERMSRV entry, then reconnect to the VDI/RDP session and re-enter credentials."
+      ]
+    },
+    {
+      name: 'Test VDI Broker Connectivity',
+      admin: false,
+      what: ['Checks whether this machine can reach the VDI broker/gateway before assuming it\u2019s a credentials issue', 'Edit the broker address at the top of the script before running'],
+      script: [
+        '# Edit this line with your organization\u2019s broker/gateway address before running',
+        '$BrokerAddress = "broker.company.com"',
+        '',
+        'Write-Host "Testing connectivity to $BrokerAddress..."',
+        'Test-NetConnection -ComputerName $BrokerAddress -Port 443',
+        'Test-NetConnection -ComputerName $BrokerAddress -Port 4172'
+      ],
+      manual: [
+        "Open Command Prompt.",
+        "Type ping <broker address> and press Enter to check basic reachability.",
+        "If ping fails or times out, the issue is likely network or VPN related — escalate to the network team."
+      ]
+    },
+    {
+      name: 'Restart Citrix Client Services',
+      admin: true,
+      what: ['Restarts local Citrix background services', 'Fixes a hung Workspace app or resources that won\u2019t launch'],
+      script: [
+        'Get-Service -Name "Citrix*" -ErrorAction SilentlyContinue | Restart-Service -Force -ErrorAction SilentlyContinue',
+        'Write-Host "Citrix client services restarted."'
+      ],
+      manual: [
+        "Press Windows + R, type services.msc, and press Enter.",
+        "Find services starting with \"Citrix\" in the list.",
+        "Right-click each one and choose Restart."
+      ]
+    },
+    {
+      name: 'Reset Remote Desktop Connection Settings',
+      admin: false,
+      what: ['Clears the saved default Remote Desktop Connection (mstsc) settings file', 'Fixes stuck server names or display/resolution glitches on reconnect'],
+      script: [
+        'Remove-Item -Path "$env:USERPROFILE\\Documents\\Default.rdp" -Force -ErrorAction SilentlyContinue',
+        'Write-Host "Default RDP connection settings cleared. Reopen Remote Desktop Connection and reconfigure."'
+      ],
+      manual: [
+        "Close Remote Desktop Connection.",
+        "Open File Explorer, go to Documents, and delete \"Default.rdp\" if present (turn on \"show hidden files\" if you don\u2019t see it).",
+        "Reopen Remote Desktop Connection and re-enter your settings."
+      ]
+    },
+    {
+      name: 'Clear Windows Update Cache',
+      admin: true,
+      what: ['Stops the Windows Update and BITS services', 'Clears the downloaded update cache', 'Restarts the services — fixes stuck or repeatedly failing updates'],
+      script: [
+        'Stop-Service -Name wuauserv -Force',
+        'Stop-Service -Name bits -Force',
+        'Remove-Item -Path "$env:SystemRoot\\SoftwareDistribution\\Download\\*" -Recurse -Force -ErrorAction SilentlyContinue',
+        'Start-Service -Name bits',
+        'Start-Service -Name wuauserv',
+        'Write-Host "Windows Update cache cleared. Try checking for updates again."'
+      ],
+      manual: [
+        "Press Windows + R, type services.msc, and press Enter.",
+        "Find Windows Update, right-click it, and choose Stop.",
+        "Press Windows + R, type %windir%\\SoftwareDistribution\\Download, press Enter, and delete everything inside.",
+        "Back in services.msc, right-click Windows Update and choose Start."
+      ]
+    },
+    {
+      name: 'Reset Windows Update Components',
+      admin: true,
+      what: ['A more thorough reset than clearing the cache', 'Renames the SoftwareDistribution and catroot2 folders so Windows rebuilds them fresh', 'Use when clearing the cache alone didn\u2019t fix the update problem'],
+      script: [
+        'Stop-Service -Name wuauserv,bits,cryptsvc -Force',
+        'Rename-Item -Path "$env:SystemRoot\\SoftwareDistribution" -NewName "SoftwareDistribution.old" -Force -ErrorAction SilentlyContinue',
+        'Rename-Item -Path "$env:SystemRoot\\System32\\catroot2" -NewName "catroot2.old" -Force -ErrorAction SilentlyContinue',
+        'Start-Service -Name cryptsvc,bits,wuauserv',
+        'Write-Host "Windows Update components reset. Try checking for updates again."'
+      ],
+      manual: [
+        "Press Windows + R, type services.msc, and press Enter.",
+        "Stop these services: Windows Update, Background Intelligent Transfer Service, and Cryptographic Services.",
+        "In File Explorer, rename C:\\Windows\\SoftwareDistribution to SoftwareDistribution.old, and C:\\Windows\\System32\\catroot2 to catroot2.old.",
+        "Go back to services.msc and start the three services again."
+      ]
+    },
+    {
+      name: 'Clear ARP Cache',
+      admin: true,
+      what: ['Flushes the local ARP table', 'Helps with duplicate IP conflicts or devices on the local network that suddenly can\u2019t be reached'],
+      script: [
+        'arp -d *',
+        'Write-Host "ARP cache cleared."'
+      ],
+      manual: [
+        "Open Command Prompt as Administrator.",
+        "Type arp -d * and press Enter."
+      ]
+    },
+    {
+      name: 'Enable Remote Desktop',
+      admin: true,
+      what: ['Turns on Remote Desktop access on this machine', 'Opens the matching Windows Firewall rule', 'Useful for setting up remote support'],
+      script: [
+        'Set-ItemProperty -Path "HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server" -Name "fDenyTSConnections" -Value 0',
+        'Enable-NetFirewallRule -DisplayGroup "Remote Desktop"',
+        'Write-Host "Remote Desktop enabled."'
+      ],
+      manual: [
+        "Open Settings > System > Remote Desktop.",
+        "Turn on \"Remote Desktop\" and confirm the prompt.",
+        "Make sure the account that needs access is listed under \"Remote Desktop users\"."
+      ]
+    },
+    {
+      name: 'Repair Microsoft Store Apps',
+      admin: false,
+      what: ['Resets the Microsoft Store cache', 'Fixes a Store that won\u2019t open, or apps that won\u2019t download or update'],
+      script: [
+        'Write-Host "Resetting Microsoft Store cache..."',
+        'Start-Process "wsreset.exe"'
+      ],
+      manual: [
+        "Press Windows + R, type wsreset.exe, and press Enter.",
+        "A blank window will open — wait for it to close on its own, and the Store will relaunch."
+      ]
+    },
+    {
+      name: 'Generate System Info Report',
+      admin: false,
+      what: ['Exports a full hardware and software summary to a text file on your Desktop', 'Handy to attach to a ticket'],
+      script: [
+        '$path = "$env:USERPROFILE\\Desktop\\SystemInfo_$(Get-Date -Format yyyyMMdd_HHmm).txt"',
+        'msinfo32 /report $path',
+        'Write-Host "Report saved to $path"'
+      ],
+      manual: [
+        "Press the Windows key, type msinfo32, and press Enter.",
+        "Go to File > Export.",
+        "Choose a location and save the file."
+      ]
+    },
+    {
+      name: 'Restart Windows Search Indexer',
+      admin: true,
+      what: ['Restarts the Windows Search service', 'Fixes broken or empty Start menu and File Explorer search results'],
+      script: [
+        'Restart-Service -Name WSearch -Force',
+        'Write-Host "Windows Search service restarted. Indexing will resume in the background."'
+      ],
+      manual: [
+        "Press Windows + R, type services.msc, and press Enter.",
+        "Find Windows Search, right-click it, and choose Restart."
+      ]
+    },
+    {
+      name: 'Check Disk (CHKDSK)',
+      admin: true,
+      what: ['Scans the system drive for file system errors', 'Schedules the repair for the next restart if the drive is in use'],
+      script: [
+        'chkdsk C: /f /r'
+      ],
+      manual: [
+        "Open Command Prompt as Administrator.",
+        "Type chkdsk C: /f /r and press Enter.",
+        "If asked to schedule the scan for the next restart, type Y and press Enter.",
+        "Restart the computer and let the scan finish."
+      ]
+    },
+    {
+      name: 'Clear Recycle Bin (All Drives)',
+      admin: false,
+      what: ['Empties the Recycle Bin on every drive', 'A quick fix for low-disk-space tickets'],
+      script: [
+        'Clear-RecycleBin -Force -ErrorAction SilentlyContinue',
+        'Write-Host "Recycle Bin emptied."'
+      ],
+      manual: [
+        "Right-click the Recycle Bin icon on the desktop.",
+        "Choose Empty Recycle Bin and confirm."
+      ]
+    },
+    {
+      name: 'Reset Proxy Settings',
+      admin: false,
+      what: ['Resets the system-wide proxy configuration to direct access', 'Fixes \"no internet\" issues caused by a stuck or incorrect proxy'],
+      script: [
+        'netsh winhttp reset proxy',
+        'Write-Host "Proxy settings reset to direct access."'
+      ],
+      manual: [
+        "Open Settings > Network & Internet > Proxy.",
+        "Turn off \"Use a proxy server\" if it\u2019s on.",
+        "Check whether \"Automatically detect settings\" should be on or off for your network."
+      ]
+    }
+  ];
+
+  const toolkitSelectEl = document.getElementById('toolkitSelect');
+  const toolkitDetailEl = document.getElementById('toolkitDetail');
+  let toolkitRendered = false;
+  let activeToolIndex = 0;
+
+  function renderToolkitCats() {
+    if (toolkitRendered) return;
+    toolkitSelectEl.innerHTML = '';
+    TOOLKIT_ITEMS.forEach((tool, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = tool.name + (tool.admin ? ' (requires admin)' : '');
+      toolkitSelectEl.appendChild(opt);
+    });
+    toolkitSelectEl.addEventListener('change', () => selectTool(Number(toolkitSelectEl.value)));
+    toolkitRendered = true;
+    selectTool(0);
+  }
+
+  function selectTool(i) {
+    activeToolIndex = i;
+    toolkitSelectEl.value = String(i);
+    renderToolDetail(TOOLKIT_ITEMS[i]);
+  }
+
+  function renderToolDetail(tool) {
+    const scriptText = tool.script.join('\n');
+    const whatHtml = tool.what.map(w => '<li>' + w + '</li>').join('');
+    const step2 = tool.admin
+      ? 'Right-click the Start menu, choose <strong>Windows PowerShell (Admin)</strong> or <strong>Terminal (Admin)</strong>.'
+      : 'Press the Windows key, type <strong>PowerShell</strong>, and press Enter.';
+
+    toolkitDetailEl.innerHTML =
+      '<h2>' + tool.name + (tool.admin ? ' <span class="req">requires admin</span>' : '') + '</h2>' +
+      '<div class="ts-what-happens"><div class="ts-what-happens-title">What the script does when you run it</div>' +
+      '<ul>' + whatHtml + '</ul></div>' +
+      '<div class="ts-steps"><div class="ts-what-happens-title">How to run it</div><ol>' +
+      '<li>Click <strong>View script</strong> below, then copy it from there.</li>' +
+      '<li>' + step2 + '</li>' +
+      '<li>Right-click inside the window to paste, then press Enter.</li>' +
+      '<li>Wait for it to finish.</li>' +
+      '</ol></div>' +
+      '<div class="row" style="margin-top:16px;"><button class="primary" id="toolkitViewScriptBtn" type="button">View script</button></div>' +
+      '<div class="ts-steps"><div class="ts-what-happens-title">Manual steps (KB) — if scripts aren\u2019t allowed on this machine</div><ol>' +
+      tool.manual.map(s => '<li>' + s + '</li>').join('') +
+      '</ol></div>';
+
+    document.getElementById('toolkitViewScriptBtn').addEventListener('click', () => {
+      openScriptModal(tool.name, scriptText);
+    });
+  }
+
+  const scriptModalOverlay = document.getElementById('scriptModalOverlay');
+  const scriptModalTitle = document.getElementById('scriptModalTitle');
+  const scriptModalPreview = document.getElementById('scriptModalPreview');
+  const scriptModalCopyBtn = document.getElementById('scriptModalCopyBtn');
+  const scriptModalStatus = document.getElementById('scriptModalStatus');
+  const scriptModalClose = document.getElementById('scriptModalClose');
+  let scriptModalCurrentText = '';
+
+  function openScriptModal(title, scriptText) {
+    scriptModalCurrentText = scriptText;
+    scriptModalTitle.textContent = title;
+    scriptModalPreview.textContent = scriptText;
+    scriptModalCopyBtn.textContent = 'Copy script';
+    scriptModalCopyBtn.classList.remove('copied');
+    scriptModalStatus.classList.remove('show');
+    scriptModalStatus.textContent = 'Copied — paste it in and press Enter';
+    scriptModalOverlay.classList.add('show');
+  }
+
+  function closeScriptModal() {
+    scriptModalOverlay.classList.remove('show');
+  }
+
+  scriptModalClose.addEventListener('click', closeScriptModal);
+  scriptModalOverlay.addEventListener('click', (e) => {
+    if (e.target === scriptModalOverlay) closeScriptModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && scriptModalOverlay.classList.contains('show')) closeScriptModal();
+  });
+
+  scriptModalCopyBtn.addEventListener('click', async () => {
+    const ok = await copyText(scriptModalCurrentText);
+    if (ok) {
+      scriptModalCopyBtn.textContent = 'Copied';
+      scriptModalCopyBtn.classList.add('copied');
+      scriptModalStatus.classList.add('show');
+      setTimeout(() => {
+        scriptModalCopyBtn.textContent = 'Copy script';
+        scriptModalCopyBtn.classList.remove('copied');
+        scriptModalStatus.classList.remove('show');
+      }, 1800);
+    } else {
+      // Last resort: select the script text so Ctrl+C works
+      const range = document.createRange();
+      range.selectNodeContents(scriptModalPreview);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      scriptModalStatus.textContent = 'Auto-copy was blocked — the script is selected, press Ctrl+C to copy it.';
+      scriptModalStatus.classList.add('show');
+    }
+  });
+
+
+</script>
+</body>
+</html>
